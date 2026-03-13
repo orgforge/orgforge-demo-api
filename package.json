@@ -1,0 +1,12 @@
+{
+  "name": "orgforge-demo-api",
+  "version": "0.1.0",
+  "description": "OrgForge Phase 0 — Live Demo API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
