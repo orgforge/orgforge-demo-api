@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="command">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrgForge — Governance Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   COMMAND THEME
+   Cold War strategic command center. NORAD. Apollo mission control.
+   Heavy bezels, recessed instrument bays, backlit status indicators.
+══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg: #0a0a0b;
+  --bg-deep: #060607;
+  --surface: #111114;
+  --surface2: #161619;
+  --surface3: #1c1c20;
+  --surface-raised: #1a1a1e;
+  --border: #1e1e24;
+  --border-light: #2a2a32;
+  --border-strong: #38383f;
+  --border-bevel: #0d0d0e;
+  --text: #e8e6e0;
+  --text-muted: #9a968e;
+  --text-dim: #5e5b56;
+  --accent: #d4a843;
+  --accent-dim: rgba(212,168,67,0.12);
+  --accent-glow: rgba(212,168,67,0.06);
+  --accent-strong: rgba(212,168,67,0.25);
+  --green: #4a9e6e;
+  --green-dim: rgba(74,158,110,0.10);
+  --green-bright: #5cb87e;
+  --green-glow: 0 0 8px rgba(74,158,110,0.3);
+  --red: #8f3f3f;
+  --red-dim: rgba(143,63,63,0.10);
+  --red-bright: #b85555;
+  --red-glow: 0 0 8px rgba(143,63,63,0.3);
+  --amber: #d4a843;
+  --amber-dim: rgba(212,168,67,0.10);
+  --font-heading: 'DM Serif Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 4px;
+  --radius-sm: 2px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px; line-height: 1.5;
+  height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TOP BAR — heavy institutional header
+══════════════════════════════════════════════════════════════════ */
+.topbar {
+  height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: linear-gradient(180deg, #131316 0%, #0e0e11 100%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.logo {
+  font-family: var(--font-heading); font-size: 15px;
+  color: var(--accent); text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.logo-sub {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim); letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Demo badge — pulsing to make it clear this is a demo */
+.demo-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
+  color: var(--accent); text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-sm);
+  background: var(--accent-glow);
+}
+.demo-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: demo-pulse 2s ease-in-out infinite;
+}
+@keyframes demo-pulse {
+  0%, 100% { opacity: 0.4; box-shadow: none; }
+  50% { opacity: 1; box-shadow: 0 0 6px var(--accent); }
+}
+
+.topbar-center { display: flex; align-items: center; gap: 3px; }
+.view-btn {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+  padding: 4px 10px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-dim); cursor: pointer;
+  text-transform: uppercase; border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+.view-btn:hover { color: var(--text-muted); border-color: var(--border-light); }
+.view-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.theme-pill {
+  display: flex; gap: 2px; padding: 2px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.theme-btn {
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.06em;
+  padding: 3px 8px; border: none;
+  background: transparent; color: var(--text-dim); cursor: pointer;
+  text-transform: uppercase; border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+.theme-btn:hover { color: var(--text-muted); }
+.theme-btn.active { background: var(--accent); color: var(--bg); }
+.theme-btn.disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════════════════
+   DEMO INTRODUCTION STRIP
+══════════════════════════════════════════════════════════════════ */
+.demo-intro {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px;
+}
+.demo-intro-text {
+  font-family: var(--font-body); font-size: 12px;
+  color: var(--text-muted); line-height: 1.5;
+}
+.demo-intro-text strong { color: var(--text); font-weight: 500; }
+.demo-steps {
+  display: flex; gap: 20px; flex-shrink: 0;
+}
+.demo-step {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim); letter-spacing: 0.04em;
+}
+.demo-step-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface2);
+  color: var(--accent);
+  font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+.demo-step-arrow {
+  color: var(--border-strong); font-size: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   THREE-PANE LAYOUT with resizable handles
+══════════════════════════════════════════════════════════════════ */
+.panes {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.pane {
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.pane-left { width: 280px; min-width: 220px; max-width: 400px; }
+.pane-center { flex: 1; min-width: 340px; }
+.pane-right { width: 280px; min-width: 220px; max-width: 400px; }
+
+/* Resize handles */
+.resize-handle {
+  width: 5px; flex-shrink: 0;
+  background: var(--border);
+  cursor: col-resize;
+  position: relative;
+  transition: background 0.15s;
+}
+.resize-handle:hover, .resize-handle.active {
+  background: var(--accent);
+}
+.resize-handle::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1px; height: 24px;
+  background: var(--border-light);
+  border-radius: 1px;
+}
+.resize-handle:hover::after { background: var(--accent); }
+
+/* ── Pane Headers ── */
+.pane-header {
+  padding: 10px 14px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.pane-title {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+  color: var(--accent); text-transform: uppercase;
+}
+.pane-body {
+  flex: 1; overflow-y: auto;
+  padding: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COLLAPSIBLE PANELS with minimize button
+══════════════════════════════════════════════════════════════════ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.panel-header {
+  padding: 7px 10px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  flex-shrink: 0;
+}
+.panel-header:hover { background: var(--surface2); }
+.panel-label {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text-dim); text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.panel-header-right {
+  display: flex; align-items: center; gap: 6px;
+}
+.panel-count {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim);
+}
+.minimize-btn {
+  width: 18px; height: 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-deep);
+  color: var(--text-dim);
+  font-family: var(--font-mono); font-size: 10px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  padding: 0;
+}
+.minimize-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.panel.minimized .minimize-btn {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.panel-body {
+  padding: 8px 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.panel.minimized .panel-body {
+  display: none;
+}
+.panel.minimized {
+  flex-shrink: 0;
+}
+.panel.minimized .panel-header {
+  border-bottom: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ORGSPEC CONFIG COMPONENTS
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Org State Indicators (heavy backlit status lights) ── */
+.org-state-row { display: flex; gap: 6px; }
+.org-state-btn {
+  flex: 1;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+  padding: 6px 8px; text-align: center;
+  border: 2px solid var(--border-strong);
+  background: var(--bg-deep);
+  color: var(--text-dim); cursor: pointer;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.02);
+}
+.org-state-btn:hover { border-color: var(--border-light); color: var(--text-muted); }
+.org-state-btn.active {
+  border-color: var(--green);
+  color: var(--green-bright);
+  background: var(--green-dim);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), var(--green-glow);
+}
+.org-state-btn.freeze-active {
+  border-color: var(--red-bright);
+  color: var(--red-bright);
+  background: var(--red-dim);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), var(--red-glow);
+}
+.org-state-btn.audit-active {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3), 0 0 8px rgba(212,168,67,0.3);
+}
+
+/* ── Actor Cards (instrument readouts) ── */
+.actor-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  background: var(--bg-deep);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.actor-card:hover { border-color: var(--border-light); }
+.actor-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+
+/* Heavy bezel status light */
+.actor-light {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface3);
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+  transition: all 0.2s;
+}
+.actor-card.actor-active .actor-light {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), var(--green-glow);
+}
+.actor-card.actor-suspended .actor-light {
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), var(--red-glow);
+}
+.actor-info { flex: 1; min-width: 0; }
+.actor-id {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.actor-meta {
+  font-family: var(--font-mono); font-size: 9px; color: var(--text-dim);
+}
+.actor-badge {
+  font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.08em;
+  padding: 2px 5px; border-radius: var(--radius-sm);
+  text-transform: uppercase; flex-shrink: 0;
+}
+.actor-badge.on { color: var(--green-bright); background: var(--green-dim); border: 1px solid rgba(74,158,110,0.2); }
+.actor-badge.off { color: var(--red-bright); background: var(--red-dim); border: 1px solid rgba(143,63,63,0.2); }
+
+/* ── Policy Display ── */
+.policy-block {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  margin-bottom: 4px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.policy-role {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  color: var(--accent); margin-bottom: 4px;
+}
+.policy-line {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim); line-height: 1.7;
+}
+.policy-line .val { color: var(--text-muted); }
+
+/* ── Sandbox Sliders (stacked layout, always visible) ── */
+.control-row {
+  padding: 4px 0 6px;
+  border-bottom: 1px solid var(--border);
+}
+.control-row:last-child { border-bottom: none; }
+.control-top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.control-label {
+  font-family: var(--font-mono); font-size: 8px;
+  color: var(--text-dim); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.control-readout {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  color: var(--accent);
+  width: 52px; text-align: right;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+.control-readout:focus { border-color: var(--accent); outline: none; }
+.control-slider {
+  width: 100%; height: 4px;
+  -webkit-appearance: none; appearance: none;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  outline: none; cursor: pointer;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+  display: block;
+}
+.control-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a3a3f 0%, #28282c 100%);
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 1px 3px rgba(0,0,0,0.5);
+  transition: width 0.15s, height 0.15s;
+}
+.control-slider::-moz-range-thumb {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a3a3f 0%, #28282c 100%);
+  border: 2px solid var(--accent);
+  cursor: pointer;
+}
+.control-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 3px var(--accent-dim), 0 2px 4px rgba(0,0,0,0.6);
+}
+/* At narrow widths, shrink thumb further */
+@container (max-width: 240px) {
+  .control-slider::-webkit-slider-thumb { width: 10px; height: 10px; border-width: 1px; }
+}
+
+/* ── Quick Scenario Buttons ── */
+.scenario-btn {
+  display: block; width: 100%;
+  text-align: left;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: all 0.15s;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+.scenario-btn:hover { border-color: var(--border-light); background: var(--surface); }
+.scenario-btn.active { border-color: var(--accent); background: var(--accent-glow); }
+.scenario-name {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  color: var(--text);
+  display: flex; align-items: center; gap: 6px;
+}
+.scenario-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.scenario-dot.auth { background: var(--green); box-shadow: var(--green-glow); }
+.scenario-dot.rej { background: var(--red-bright); box-shadow: var(--red-glow); }
+.scenario-desc {
+  font-family: var(--font-body); font-size: 9px;
+  color: var(--text-dim); margin-top: 2px; line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ZONE 2: AUTHORIZATION PIPELINE (center)
+══════════════════════════════════════════════════════════════════ */
+.pipeline-pane .pane-body { padding: 14px 16px; }
+
+/* ── Intent Composer ── */
+.composer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+.composer-head {
+  padding: 7px 12px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.composer-title {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+  color: var(--text-dim); text-transform: uppercase;
+}
+.composer-body { padding: 10px 12px; }
+.composer.minimized .composer-body,
+.composer.minimized .json-drawer,
+.composer.minimized .eval-actions { display: none; }
+.composer.minimized .composer-head { border-bottom: none; }
+.composer-head-right { display: flex; align-items: center; gap: 5px; }
+.field-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.field-label {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim); min-width: 60px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.field-select, .field-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text); background: var(--bg-deep);
+  border: 1px solid var(--border); padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+  transition: border-color 0.15s;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.field-select:focus, .field-input:focus { border-color: var(--accent); outline: none; }
+.field-select { cursor: pointer; max-width: 100%; }
+
+.json-btn {
+  font-family: var(--font-mono); font-size: 8px;
+  color: var(--text-dim); background: transparent;
+  border: 1px solid var(--border); padding: 2px 7px;
+  cursor: pointer; border-radius: var(--radius-sm);
+  transition: all 0.15s; letter-spacing: 0.06em;
+}
+.json-btn:hover { color: var(--text-muted); }
+.json-btn.open { color: var(--accent); border-color: var(--accent); }
+
+.json-drawer {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.25s ease, opacity 0.2s ease, padding 0.2s ease;
+  padding: 0 12px;
+}
+.json-drawer.open {
+  max-height: 300px; opacity: 1;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+}
+.json-ta {
+  width: 100%;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-muted); background: var(--bg-deep);
+  border: 1px solid var(--border);
+  padding: 8px; border-radius: var(--radius-sm);
+  resize: vertical; min-height: 80px;
+  line-height: 1.6;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+}
+.json-ta:focus { border-color: var(--accent); outline: none; }
+
+.eval-actions {
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+}
+.eval-btn {
+  width: 100%;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bg); background: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 10px 16px; cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(212,168,67,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.eval-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,168,67,0.3); }
+.eval-btn:active { transform: translateY(0); }
+.eval-btn:disabled { opacity: 0.35; cursor: default; transform: none; filter: none; }
+.eval-sub {
+  font-size: 8px; letter-spacing: 0.04em;
+  opacity: 0.6; font-weight: 400;
+}
+.eval-btn.running {
+  background: var(--surface);
+  color: var(--amber);
+  animation: eval-pulse 1s ease-in-out infinite;
+}
+@keyframes eval-pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+
+/* ── Pipeline Stages (heavy status board) ── */
+.pipeline-frame {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.02);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.pipeline-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.pipeline-label {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+  color: var(--accent); text-transform: uppercase;
+}
+.pipeline-stat {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim);
+}
+
+.stage {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  margin-bottom: 3px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.02);
+}
+.stage.idle { opacity: 0.45; }
+.stage.checking {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  opacity: 1;
+}
+.stage.pass {
+  border-color: var(--green);
+  background: var(--green-dim);
+  opacity: 1;
+}
+.stage.fail {
+  border-color: var(--red-bright);
+  background: var(--red-dim);
+  opacity: 1;
+}
+.stage.dimmed { opacity: 0.2; border-color: var(--border); }
+
+/* Heavy bezel status light */
+.stage-light {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--border-strong);
+  background: var(--surface3);
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+.stage.checking .stage-light {
+  border-color: var(--amber);
+  background: var(--amber);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 0 8px rgba(212,168,67,0.4);
+  animation: light-pulse 0.7s ease-in-out infinite;
+}
+.stage.pass .stage-light {
+  border-color: var(--green);
+  background: var(--green);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), var(--green-glow);
+}
+.stage.fail .stage-light {
+  border-color: var(--red-bright);
+  background: var(--red-bright);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), var(--red-glow);
+}
+@keyframes light-pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+
+.stage-info { flex: 1; min-width: 0; }
+.stage-name {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  color: var(--text); transition: color 0.25s;
+}
+.stage.checking .stage-name { color: var(--amber); }
+.stage.pass .stage-name { color: var(--green-bright); }
+.stage.fail .stage-name { color: var(--red-bright); }
+.stage-detail {
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim); margin-top: 1px; min-height: 13px;
+  transition: color 0.25s;
+}
+.stage.pass .stage-detail { color: var(--green); }
+.stage.fail .stage-detail { color: var(--red-bright); }
+.stage.checking .stage-detail { color: var(--amber); }
+/* Briefing mode: expanded stage explanations */
+.stage-explain {
+  display: none;
+  font-family: var(--font-body); font-size: 10px;
+  color: var(--text-muted); margin-top: 2px; font-style: italic;
+}
+body.explain-mode .stage-explain { display: block; }
+body.explain-mode .stage-detail { display: none; }
+
+/* Briefing narrative panel */
+.briefing-panel {
+  display: none;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+body.explain-mode .briefing-panel.has-content { display: block; }
+.briefing-head {
+  padding: 8px 12px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--accent); text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.briefing-body {
+  padding: 12px 14px;
+}
+.briefing-section {
+  margin-bottom: 12px;
+}
+.briefing-section:last-child { margin-bottom: 0; }
+.briefing-section-title {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
+  color: var(--accent); text-transform: uppercase;
+  margin-bottom: 5px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.briefing-text {
+  font-family: var(--font-body); font-size: 11px;
+  color: var(--text-muted); line-height: 1.7;
+}
+.briefing-text strong { color: var(--text); font-weight: 500; }
+.briefing-text .highlight { color: var(--accent); font-weight: 500; }
+.briefing-text .pass-text { color: var(--green-bright); }
+.briefing-text .fail-text { color: var(--red-bright); }
+.briefing-step {
+  display: flex; gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.briefing-step:last-child { border-bottom: none; }
+.briefing-step-num {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--bg-deep);
+  color: var(--text-dim);
+  font-family: var(--font-mono); font-size: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+.briefing-step-num.pass { border-color: var(--green); color: var(--green-bright); }
+.briefing-step-num.fail { border-color: var(--red-bright); color: var(--red-bright); }
+.briefing-step-content {
+  font-family: var(--font-body); font-size: 11px;
+  color: var(--text-muted); line-height: 1.6;
+}
+.briefing-step-content strong { color: var(--text); font-weight: 500; }
+
+/* Briefing mode hint — shown before first evaluation */
+.briefing-hint {
+  display: none;
+  margin: 16px 0;
+  padding: 16px 18px;
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius);
+  background: var(--accent-glow);
+  text-align: center;
+}
+body.explain-mode .briefing-hint.visible { display: block; }
+.briefing-hint-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+  opacity: 0.5;
+}
+.briefing-hint-title {
+  font-family: var(--font-heading); font-size: 14px;
+  color: var(--text); margin-bottom: 4px;
+}
+.briefing-hint-text {
+  font-family: var(--font-body); font-size: 11px;
+  color: var(--text-muted); line-height: 1.6;
+}
+.briefing-hint-text strong { color: var(--accent); font-weight: 500; }
+
+.connector {
+  width: 2px; height: 6px;
+  background: var(--border-strong);
+  margin: 0 auto;
+  transition: background 0.3s;
+}
+.connector.pass { background: var(--green); }
+.connector.fail { background: var(--red-bright); }
+
+/* ── Quorum Panel ── */
+.quorum-box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  display: none;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+.quorum-box.visible { display: block; }
+.quorum-head {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
+}
+.quorum-nodes { display: flex; gap: 6px; margin-bottom: 8px; }
+.qnode {
+  flex: 1;
+  padding: 7px 8px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+  text-align: center;
+  transition: all 0.3s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+}
+.qnode.signed {
+  border-color: var(--green);
+  background: var(--green-dim);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2), var(--green-glow);
+}
+.qnode-id { font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-bottom: 3px; }
+.qnode.signed .qnode-id { color: var(--green-bright); }
+.qnode-status { font-family: var(--font-mono); font-size: 10px; font-weight: 500; color: var(--text-dim); }
+.qnode.signed .qnode-status { color: var(--green); }
+.qnode-sig { font-family: var(--font-mono); font-size: 7px; color: var(--text-dim); margin-top: 3px; word-break: break-all; display: none; }
+.qnode.signed .qnode-sig { display: block; }
+.quorum-verdict {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim); text-align: center;
+  padding-top: 6px; border-top: 1px solid var(--border);
+}
+.quorum-verdict.reached { color: var(--green-bright); }
+
+/* ── Result Banner ── */
+.result-banner {
+  padding: 12px 14px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  display: none;
+  align-items: center; gap: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.result-banner.visible { display: flex; }
+.result-banner.auth { border-color: var(--green); background: var(--green-dim); box-shadow: var(--green-glow), 0 2px 6px rgba(0,0,0,0.3); }
+.result-banner.rej { border-color: var(--red-bright); background: var(--red-dim); box-shadow: var(--red-glow), 0 2px 6px rgba(0,0,0,0.3); }
+.result-icon { font-size: 18px; flex-shrink: 0; }
+.result-banner.auth .result-icon { color: var(--green-bright); }
+.result-banner.rej .result-icon { color: var(--red-bright); }
+.result-content { flex: 1; }
+.result-title { font-family: var(--font-heading); font-size: 15px; }
+.result-banner.auth .result-title { color: var(--green-bright); }
+.result-banner.rej .result-title { color: var(--red-bright); }
+.result-detail { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+.result-explain-text {
+  display: none;
+  font-family: var(--font-body); font-size: 10px;
+  color: var(--text-muted); margin-top: 4px; font-style: italic;
+}
+body.explain-mode .result-explain-text { display: block; }
+
+/* ── Adapter Decision ── */
+.adapter-box {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  display: none;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02);
+}
+.adapter-box.visible { display: block; }
+.adapter-head { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.adapter-decision { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.adapter-decision.exec { color: var(--green-bright); }
+.adapter-decision.block { color: var(--red-bright); }
+
+/* ══════════════════════════════════════════════════════════════════
+   ZONE 3: OUTPUT (right)
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Proof Panel ── */
+.proof-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  display: none; overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+.proof-box.visible { display: block; }
+.proof-head {
+  padding: 7px 10px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--accent); text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.proof-body { padding: 8px 10px; }
+.proof-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 3px 0; border-bottom: 1px solid var(--border);
+}
+.proof-row:last-child { border-bottom: none; }
+.proof-k { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); }
+.proof-v { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align: right; max-width: 150px; word-break: break-all; }
+.proof-v.hi { color: var(--accent); }
+.proof-v.green { color: var(--green-bright); }
+
+/* ── Enforcement Summary ── */
+.enf-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  display: none; overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+.enf-box.visible { display: block; }
+.enf-head {
+  padding: 7px 10px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text-dim); text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.enf-body {
+  padding: 10px; font-family: var(--font-body); font-size: 11px;
+  color: var(--text-muted); line-height: 1.7;
+}
+.enf-body strong { color: var(--text); font-weight: 500; }
+
+/* ── Audit Ledger ── */
+.audit-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02), 0 2px 4px rgba(0,0,0,0.3);
+}
+.audit-head {
+  padding: 7px 10px;
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+.audit-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; }
+.audit-ct { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); }
+.audit-body { padding: 6px; max-height: 280px; overflow-y: auto; }
+.audit-entry {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 3px;
+  background: var(--bg-deep);
+  font-family: var(--font-mono); font-size: 9px;
+  animation: fadeIn 0.3s ease forwards;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:translateY(0); } }
+.audit-entry.auth { border-left: 2px solid var(--green); }
+.audit-entry.rej { border-left: 2px solid var(--red-bright); }
+.a-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.audit-entry.auth .a-dot { background: var(--green); }
+.audit-entry.rej .a-dot { background: var(--red-bright); }
+.a-text { flex: 1; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.a-time { color: var(--text-dim); flex-shrink: 0; }
+.audit-empty { padding: 16px; text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="logo" href="#">OrgForge</a>
+    <span class="logo-sub">Governance Console</span>
+    <div class="demo-badge"><span class="demo-dot"></span> Live Demo</div>
+  </div>
+  <div class="topbar-center">
+    <button class="view-btn active" data-v="protocol" onclick="setView('protocol')">Protocol</button>
+    <button class="view-btn" data-v="briefing" onclick="setView('briefing')">Briefing</button>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-pill">
+      <button class="theme-btn active" onclick="setTheme('command',this)">Command</button>
+      <button class="theme-btn disabled" title="Coming soon">OrgForge</button>
+      <button class="theme-btn disabled" title="Coming soon">Enterprise</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO INTRO -->
+<div class="demo-intro">
+  <div class="demo-intro-text">
+    <strong>OrgForge enforces organizational rules at the moment actions execute.</strong>
+    Actors submit intents. OrgForge evaluates them against an OrgSpec. If rules are satisfied, a signed authorization proof is issued. Execution systems verify the proof before acting.
+  </div>
+  <div class="demo-steps">
+    <div class="demo-step"><span class="demo-step-num">1</span> Configure rules</div>
+    <span class="demo-step-arrow">&rarr;</span>
+    <div class="demo-step"><span class="demo-step-num">2</span> Submit intent</div>
+    <span class="demo-step-arrow">&rarr;</span>
+    <div class="demo-step"><span class="demo-step-num">3</span> Watch enforcement</div>
+  </div>
+</div>
+
+<!-- THREE PANES -->
+<div class="panes">
+
+  <!-- LEFT: ORGSPEC CONFIG -->
+  <div class="pane pane-left" id="pane-left">
+    <div class="pane-header"><span class="pane-title">OrgSpec</span></div>
+    <div class="pane-body">
+
+      <div class="panel" id="panel-scenarios">
+        <div class="panel-header">
+          <span class="panel-label">Quick Scenarios</span>
+          <button class="minimize-btn" onclick="togglePanel('panel-scenarios')" title="Minimize">&ndash;</button>
+        </div>
+        <div class="panel-body" id="scenarios-body"></div>
+      </div>
+
+      <div class="panel" id="panel-state">
+        <div class="panel-header">
+          <span class="panel-label">Operational State</span>
+          <button class="minimize-btn" onclick="togglePanel('panel-state')" title="Minimize">&ndash;</button>
+        </div>
+        <div class="panel-body"><div class="org-state-row" id="org-state-row"></div></div>
+      </div>
+
+      <div class="panel" id="panel-actors">
+        <div class="panel-header">
+          <span class="panel-label">Actors</span>
+          <div class="panel-header-right">
+            <span class="panel-count" id="actor-ct"></span>
+            <button class="minimize-btn" onclick="togglePanel('panel-actors')" title="Minimize">&ndash;</button>
+          </div>
+        </div>
+        <div class="panel-body" id="actors-body"></div>
+      </div>
+
+      <div class="panel" id="panel-policy">
+        <div class="panel-header">
+          <span class="panel-label">Active Policy</span>
+          <button class="minimize-btn" onclick="togglePanel('panel-policy')" title="Minimize">&ndash;</button>
+        </div>
+        <div class="panel-body" id="policy-body"></div>
+      </div>
+
+      <div class="panel" id="panel-sandbox">
+        <div class="panel-header">
+          <span class="panel-label">Sandbox Controls</span>
+          <button class="minimize-btn" onclick="togglePanel('panel-sandbox')" title="Minimize">&ndash;</button>
+        </div>
+        <div class="panel-body" id="sandbox-body"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="resize-handle" id="resize-left"></div>
+
+  <!-- CENTER: PIPELINE -->
+  <div class="pane pane-center pipeline-pane" id="pane-center">
+    <div class="pane-header"><span class="pane-title">Authorization Pipeline</span></div>
+    <div class="pane-body">
+
+      <div class="composer" id="composer">
+        <div class="composer-head">
+          <span class="composer-title">Intent</span>
+          <div class="composer-head-right">
+            <button class="json-btn" id="json-btn" onclick="toggleJson()">{ }</button>
+            <button class="minimize-btn" id="composer-min-btn" onclick="toggleComposer()" title="Minimize">&ndash;</button>
+          </div>
+        </div>
+        <div class="composer-body">
+          <div class="field-row">
+            <span class="field-label">Actor</span>
+            <select class="field-select" id="f-actor"></select>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Action</span>
+            <select class="field-select" id="f-action">
+              <option value="PLACE_ORDER">PLACE_ORDER</option>
+              <option value="TOOL_CALL">TOOL_CALL</option>
+            </select>
+          </div>
+          <div id="f-params"></div>
+        </div>
+        <div class="json-drawer" id="json-drawer">
+          <textarea class="json-ta" id="json-ta" rows="7" spellcheck="false"></textarea>
+        </div>
+        <div class="eval-actions">
+          <button class="eval-btn" id="eval-btn" onclick="runEval()">Run Check <span class="eval-sub">(evaluate intent)</span></button>
+        </div>
+      </div>
+
+      <div class="pipeline-frame">
+        <div class="pipeline-header">
+          <span class="pipeline-label">Evaluation</span>
+          <span class="pipeline-stat" id="pipe-stat">Idle</span>
+        </div>
+        <div id="stages-box"></div>
+      </div>
+
+      <!-- Briefing mode hint (before first evaluation) -->
+      <div class="briefing-hint visible" id="briefing-hint">
+        <div class="briefing-hint-icon">&darr;</div>
+        <div class="briefing-hint-title">Mission Briefing</div>
+        <div class="briefing-hint-text">
+          Run an evaluation to see a full narrative briefing here.<br>
+          Select a scenario or compose an intent, then press <strong>Run Check</strong>.
+        </div>
+      </div>
+
+      <div class="quorum-box" id="quorum-box">
+        <div class="quorum-head">Validator Quorum (2-of-3)</div>
+        <div class="quorum-nodes" id="q-nodes"></div>
+        <div class="quorum-verdict" id="q-verdict"></div>
+      </div>
+
+      <div class="result-banner" id="result-banner">
+        <span class="result-icon" id="r-icon"></span>
+        <div class="result-content">
+          <div class="result-title" id="r-title"></div>
+          <div class="result-detail" id="r-detail"></div>
+          <div class="result-explain-text" id="r-explain"></div>
+        </div>
+      </div>
+
+      <!-- Briefing narrative (visible only in Briefing mode) -->
+      <div class="briefing-panel" id="briefing-panel">
+        <div class="briefing-head">Mission Briefing</div>
+        <div class="briefing-body" id="briefing-body"></div>
+      </div>
+
+      <div class="adapter-box" id="adapter-box">
+        <div class="adapter-head">Execution Adapter</div>
+        <div class="adapter-decision" id="adapter-dec"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="resize-handle" id="resize-right"></div>
+
+  <!-- RIGHT: OUTPUT -->
+  <div class="pane pane-right" id="pane-right">
+    <div class="pane-header"><span class="pane-title">Output</span></div>
+    <div class="pane-body">
+
+      <div class="proof-box" id="proof-box">
+        <div class="proof-head">Authorization Proof</div>
+        <div class="proof-body" id="proof-body"></div>
+      </div>
+
+      <div class="enf-box" id="enf-box">
+        <div class="enf-head">What OrgForge Enforced</div>
+        <div class="enf-body" id="enf-body"></div>
+      </div>
+
+      <div class="audit-box">
+        <div class="audit-head">
+          <span class="audit-label">Session Ledger</span>
+          <span class="audit-ct" id="audit-ct">0 events</span>
+        </div>
+        <div class="audit-body" id="audit-body">
+          <div class="audit-empty">No evaluations yet</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+const orgSpec = {
+  org_id: 'org:demo', orgspec_version: 'v0', org_state: 'NORMAL',
+  roles: {
+    trader_agent: {
+      allowed_action_types: ['PLACE_ORDER'],
+      allowed_markets: ['ETH-USD','BTC-USD'],
+      max_order_notional_usd: 10000,
+      max_daily_notional_usd: 50000,
+      max_trades_per_minute: 10,
+      approval_threshold_usd: 10000,
+    },
+    trainer_agent: {
+      allowed_action_types: ['TOOL_CALL'],
+      allowed_tools: ['search','summarize','draft','code_exec'],
+      max_calls_per_minute: 20,
+      episode_budget_units: 1000,
+      requires_approval: ['code_exec'],
+    },
+    treasury_bot: {
+      allowed_action_types: ['PLACE_ORDER','TOOL_CALL'],
+      allowed_markets: ['ETH-USD','BTC-USD','SOL-USD'],
+      max_order_notional_usd: 5000,
+      max_daily_notional_usd: 10000,
+      max_trades_per_minute: 5,
+      approval_threshold_usd: 7500,
+      allowed_tools: ['search','summarize'],
+      max_calls_per_minute: 10,
+      episode_budget_units: 500,
+      requires_approval: [],
+    }
+  },
+  actors: {
+    'agent:trader_1': { role:'trader_agent', label:'Primary Trading Bot', active:true },
+    'agent:trader_suspended': { role:'trader_agent', label:'Suspended Trading Bot', active:false },
+    'agent:alpha': { role:'trainer_agent', label:'Training Agent Alpha', active:true },
+    'agent:treasury': { role:'treasury_bot', label:'Treasury Bot', active:true },
+  }
+};
+let intent = { actor_id:'agent:trader_1', action_type:'PLACE_ORDER', params:{ venue:'SIM_EXCHANGE', market:'ETH-USD', side:'BUY', type:'MARKET', notional_usd:8000 } };
+let auditLog = [];
+let running = false;
+
+const TEMPLATES = [
+  { id:'trade-ok', name:'Trade within limits', out:'auth', desc:'AI trader buys $8,000 ETH. Limit is $10,000.', intent:{ actor_id:'agent:trader_1', action_type:'PLACE_ORDER', params:{ venue:'SIM_EXCHANGE', market:'ETH-USD', side:'BUY', type:'MARKET', notional_usd:8000 }}, org:{ org_state:'NORMAL' }},
+  { id:'trade-over', name:'Order exceeds limit', out:'rej', desc:'AI trader tries $15,000. Cap is $10,000.', intent:{ actor_id:'agent:trader_1', action_type:'PLACE_ORDER', params:{ venue:'SIM_EXCHANGE', market:'ETH-USD', side:'BUY', type:'MARKET', notional_usd:15000 }}, org:{ org_state:'NORMAL' }},
+  { id:'tool-blocked', name:'Tool needs approval', out:'rej', desc:'Agent calls code_exec. Requires human sign-off.', intent:{ actor_id:'agent:alpha', action_type:'TOOL_CALL', params:{ tool:'code_exec', cost_units:10, payload_hash:'0xabc123' }}, org:{ org_state:'NORMAL' }},
+  { id:'suspended', name:'Suspended actor', out:'rej', desc:'Revoked bot attempts trade. Blocked at identity.', intent:{ actor_id:'agent:trader_suspended', action_type:'PLACE_ORDER', params:{ venue:'SIM_EXCHANGE', market:'ETH-USD', side:'SELL', type:'MARKET', notional_usd:1000 }}, org:{ org_state:'NORMAL' }},
+  { id:'tool-ok', name:'Safe tool authorized', out:'auth', desc:'Agent calls search. No approval needed.', intent:{ actor_id:'agent:alpha', action_type:'TOOL_CALL', params:{ tool:'search', cost_units:5, payload_hash:'0xdef456' }}, org:{ org_state:'NORMAL' }},
+  { id:'freeze', name:'Org freeze mode', out:'rej', desc:'Emergency freeze. All actions blocked.', intent:{ actor_id:'agent:trader_1', action_type:'PLACE_ORDER', params:{ venue:'SIM_EXCHANGE', market:'ETH-USD', side:'BUY', type:'MARKET', notional_usd:2000 }}, org:{ org_state:'FREEZE' }},
+];
+
+const STAGES = [
+  { id:'structure', name:'Intent Structure', explain:'Is the request properly formatted?' },
+  { id:'actor', name:'Actor & Role', explain:'Is this actor recognized and permitted to act?' },
+  { id:'freshness', name:'Freshness & Replay', explain:'Is this request current? Is the org operational?' },
+  { id:'policy', name:'Action Policy', explain:'Does this action satisfy the organization\'s limits?' },
+  { id:'approval', name:'Approval Gate', explain:'Does this require additional human sign-off?' },
+];
+
+// ── Utils ──
+async function sha256(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return '0x'+Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function canon(o) { if(o===null||typeof o!=='object')return JSON.stringify(o); if(Array.isArray(o))return '['+o.map(canon).join(',')+']'; return '{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+canon(o[k])).join(',')+'}'; }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+// ══════════════════════════════════════════════════════════════════
+// EVALUATION ENGINE
+// ══════════════════════════════════════════════════════════════════
+function evaluate(i, s) {
+  const R = [];
+  const a = s.actors[i.actor_id], role = a ? s.roles[a.role] : null;
+
+  if (!i.actor_id||!i.action_type||!i.params) { R.push({stage:'structure',st:'fail',d:'Missing required fields',e:'The request is incomplete.'}); return R; }
+  R.push({stage:'structure',st:'pass',d:'All required fields present',e:'The request is properly formatted and complete.'});
+
+  if (!a) { R.push({stage:'actor',st:'fail',d:'Unknown actor: '+i.actor_id,e:'This actor is not registered in the OrgSpec.'}); return R; }
+  if (!a.active) { R.push({stage:'actor',st:'fail',d:"Actor '"+i.actor_id+"' is suspended",e:'This actor\'s permissions have been revoked.'}); return R; }
+  R.push({stage:'actor',st:'pass',d:a.label+' \u2192 '+a.role,e:'Recognized as "'+a.label+'" with role "'+a.role+'".'});
+
+  if (s.org_state==='FREEZE') { R.push({stage:'freshness',st:'fail',d:'Org state: FREEZE -- all actions blocked',e:'The organization is in emergency freeze mode. No actions can proceed.'}); return R; }
+  if (s.org_state==='AUDIT') { R.push({stage:'freshness',st:'fail',d:'Org state: AUDIT -- manual review required',e:'The organization is in audit mode. All actions are held.'}); return R; }
+  R.push({stage:'freshness',st:'pass',d:'Expires in 300s',e:'The request is current and has not been submitted before.'});
+
+  if (!role.allowed_action_types.includes(i.action_type)) { R.push({stage:'policy',st:'fail',d:i.action_type+' not allowed for '+a.role,e:'This role cannot perform "'+i.action_type+'" actions.'}); return R; }
+
+  if (i.action_type==='PLACE_ORDER') {
+    const n=i.params.notional_usd||0, m=i.params.market||'';
+    if (role.allowed_markets&&!role.allowed_markets.includes(m)) { R.push({stage:'policy',st:'fail',d:'Market '+m+' not allowed',e:'Allowed markets: '+role.allowed_markets.join(', ')+'.'}); return R; }
+    if (role.max_order_notional_usd&&n>role.max_order_notional_usd) { R.push({stage:'policy',st:'fail',d:'$'+n.toLocaleString()+' exceeds limit of $'+role.max_order_notional_usd.toLocaleString(),e:'The org caps orders at $'+role.max_order_notional_usd.toLocaleString()+'. This is $'+n.toLocaleString()+'.'}); return R; }
+    R.push({stage:'policy',st:'pass',d:(i.params.side||'BUY')+' '+m+' $'+n.toLocaleString()+' -- within limits',e:'The trade ($'+n.toLocaleString()+') is within the $'+role.max_order_notional_usd.toLocaleString()+' limit.'});
+  } else if (i.action_type==='TOOL_CALL') {
+    const t=i.params.tool||'';
+    if (role.allowed_tools&&!role.allowed_tools.includes(t)) { R.push({stage:'policy',st:'fail',d:"Tool '"+t+"' not permitted for '"+a.role+"'",e:'Allowed tools: '+role.allowed_tools.join(', ')+'.'}); return R; }
+    R.push({stage:'policy',st:'pass',d:"Tool '"+t+"' permitted",e:'The "'+t+'" tool is in the approved list.'});
+  } else { R.push({stage:'policy',st:'pass',d:'Action permitted',e:'This action type is allowed.'}); }
+
+  if (i.action_type==='PLACE_ORDER') {
+    const n=i.params.notional_usd||0;
+    if (role.approval_threshold_usd&&n>=role.approval_threshold_usd&&!(i.params.approvals&&i.params.approvals.length)) {
+      R.push({stage:'approval',st:'fail',d:'$'+n.toLocaleString()+' needs approval (threshold $'+role.approval_threshold_usd.toLocaleString()+')',e:'Orders at or above $'+role.approval_threshold_usd.toLocaleString()+' need human approval.'}); return R;
+    }
+    R.push({stage:'approval',st:'pass',d:'Below approval threshold',e:'No additional human approval needed.'});
+  } else if (i.action_type==='TOOL_CALL') {
+    const t=i.params.tool||'';
+    if (role.requires_approval&&role.requires_approval.includes(t)&&!(i.params.approvals&&i.params.approvals.length)) {
+      R.push({stage:'approval',st:'fail',d:"Tool '"+t+"' requires human approval -- none provided",e:'"'+t+'" needs human sign-off before execution.'}); return R;
+    }
+    R.push({stage:'approval',st:'pass',d:'No approval required',e:'This tool does not need additional sign-off.'});
+  } else { R.push({stage:'approval',st:'pass',d:'No approval required',e:'No additional approval needed.'}); }
+  return R;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// UI RENDERING
+// ══════════════════════════════════════════════════════════════════
+function renderScenarios() {
+  document.getElementById('scenarios-body').innerHTML = TEMPLATES.map(t=>`
+    <button class="scenario-btn" data-id="${t.id}" onclick="loadScenario('${t.id}')">
+      <div class="scenario-name"><span class="scenario-dot ${t.out}"></span>${t.name}</div>
+      <div class="scenario-desc">${t.desc}</div>
+    </button>`).join('');
+}
+
+function renderOrgState() {
+  const el=document.getElementById('org-state-row');
+  el.innerHTML = ['NORMAL','FREEZE','AUDIT'].map(s=>{
+    let cls='org-state-btn';
+    if(s===orgSpec.org_state) cls+= s==='FREEZE'?' freeze-active':s==='AUDIT'?' audit-active':' active';
+    return `<button class="${cls}" onclick="setOrgState('${s}')">${s}</button>`;
+  }).join('');
+}
+
+function renderActors() {
+  const el=document.getElementById('actors-body'), keys=Object.keys(orgSpec.actors);
+  document.getElementById('actor-ct').textContent=keys.length;
+  el.innerHTML=keys.map(id=>{
+    const a=orgSpec.actors[id], sc=a.active?'actor-active':'actor-suspended';
+    const sel=id===intent.actor_id?' selected':'';
+    return `<div class="actor-card ${sc}${sel}" onclick="pickActor('${id}')">
+      <div class="actor-light"></div>
+      <div class="actor-info"><div class="actor-id">${id}</div><div class="actor-meta">${a.label}</div></div>
+      <span class="actor-badge ${a.active?'on':'off'}">${a.active?'Active':'Off'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderPolicy() {
+  const el=document.getElementById('policy-body'), a=orgSpec.actors[intent.actor_id];
+  if(!a){el.innerHTML='<div style="color:var(--text-dim);font-size:10px">Select an actor</div>';return;}
+  const r=orgSpec.roles[a.role]; if(!r){el.innerHTML='';return;}
+  let h=`<div class="policy-block"><div class="policy-role">${a.role}</div><div class="policy-line">`;
+  if(r.allowed_action_types) h+=`Actions: <span class="val">${r.allowed_action_types.join(', ')}</span><br>`;
+  if(r.allowed_markets) h+=`Markets: <span class="val">${r.allowed_markets.join(', ')}</span><br>`;
+  if(r.max_order_notional_usd!==undefined) h+=`Per-order max: <span class="val">$${r.max_order_notional_usd.toLocaleString()}</span><br>`;
+  if(r.approval_threshold_usd!==undefined) h+=`Approval above: <span class="val">$${r.approval_threshold_usd.toLocaleString()}</span><br>`;
+  if(r.allowed_tools) h+=`Tools: <span class="val">${r.allowed_tools.join(', ')}</span><br>`;
+  if(r.requires_approval&&r.requires_approval.length) h+=`Needs approval: <span class="val">${r.requires_approval.join(', ')}</span><br>`;
+  if(r.max_calls_per_minute) h+=`Rate limit: <span class="val">${r.max_calls_per_minute}/min</span><br>`;
+  h+=`</div></div>`;
+  el.innerHTML=h;
+}
+
+function renderSandbox() {
+  const el=document.getElementById('sandbox-body'), a=orgSpec.actors[intent.actor_id];
+  if(!a){el.innerHTML='';return;}
+  const r=orgSpec.roles[a.role]; if(!r){el.innerHTML='';return;}
+  let h='';
+  if(r.max_order_notional_usd!==undefined) h+=sliderHtml('Order limit','max_order_notional_usd',r.max_order_notional_usd,1000,100000,1000);
+  if(r.approval_threshold_usd!==undefined) h+=sliderHtml('Approval at','approval_threshold_usd',r.approval_threshold_usd,1000,100000,1000);
+  if(r.max_daily_notional_usd!==undefined) h+=sliderHtml('Daily limit','max_daily_notional_usd',r.max_daily_notional_usd,5000,500000,5000);
+  el.innerHTML=h||'<div style="color:var(--text-dim);font-size:10px">No adjustable limits</div>';
+}
+function sliderHtml(label,key,val,min,max,step) {
+  return `<div class="control-row">
+    <div class="control-top">
+      <span class="control-label">${label}</span>
+      <input type="text" class="control-readout" id="ro-${key}" value="$${val.toLocaleString()}" onchange="adjustLimitText('${key}',this.value)">
+    </div>
+    <input type="range" class="control-slider" min="${min}" max="${max}" step="${step}" value="${val}" oninput="adjustLimit('${key}',this.value)">
+  </div>`;
+}
+
+function renderActorSelect() {
+  document.getElementById('f-actor').innerHTML=Object.keys(orgSpec.actors).map(id=>
+    `<option value="${id}" ${id===intent.actor_id?'selected':''}>${id} (${orgSpec.actors[id].label})</option>`).join('');
+}
+
+function renderParams() {
+  const el=document.getElementById('f-params');
+  if(intent.action_type==='PLACE_ORDER') {
+    el.innerHTML=`
+      <div class="field-row"><span class="field-label">Market</span>
+        <select class="field-select" onchange="intent.params.market=this.value;updateJson()">
+          ${['ETH-USD','BTC-USD','SOL-USD'].map(m=>`<option value="${m}" ${intent.params.market===m?'selected':''}>${m}</option>`).join('')}
+        </select></div>
+      <div class="field-row"><span class="field-label">Side</span>
+        <select class="field-select" onchange="intent.params.side=this.value;updateJson()">
+          <option value="BUY" ${intent.params.side==='BUY'?'selected':''}>BUY</option>
+          <option value="SELL" ${intent.params.side==='SELL'?'selected':''}>SELL</option>
+        </select></div>
+      <div class="field-row"><span class="field-label">Amount</span>
+        <input type="number" class="field-input" value="${intent.params.notional_usd||8000}" min="1" max="10000000" step="1" onchange="intent.params.notional_usd=Number(this.value);updateJson()"></div>`;
+  } else if(intent.action_type==='TOOL_CALL') {
+    el.innerHTML=`
+      <div class="field-row"><span class="field-label">Tool</span>
+        <select class="field-select" onchange="intent.params.tool=this.value;updateJson()">
+          ${['search','summarize','draft','code_exec'].map(t=>`<option value="${t}" ${intent.params.tool===t?'selected':''}>${t}</option>`).join('')}
+        </select></div>
+      <div class="field-row"><span class="field-label">Cost</span>
+        <input type="number" class="field-input" value="${intent.params.cost_units||5}" min="1" max="100" onchange="intent.params.cost_units=Number(this.value);updateJson()"></div>`;
+  }
+}
+
+function renderStages() {
+  document.getElementById('stages-box').innerHTML=STAGES.map((s,i)=>
+    `${i>0?'<div class="connector" id="c-'+i+'"></div>':''}
+    <div class="stage idle" id="s-${s.id}">
+      <div class="stage-light"></div>
+      <div class="stage-info">
+        <div class="stage-name">${s.name}</div>
+        <div class="stage-detail" id="d-${s.id}">&mdash;</div>
+        <div class="stage-explain" id="e-${s.id}">${s.explain}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateJson() {
+  document.getElementById('json-ta').value=JSON.stringify({
+    org_id:orgSpec.org_id, actor_id:intent.actor_id, action_type:intent.action_type,
+    params:intent.params, nonce:'0x'+Math.random().toString(16).slice(2,10),
+    expires_at:Math.floor(Date.now()/1000)+300
+  },null,2);
+}
+
+// ── Interactions ──
+function pickActor(id) {
+  intent.actor_id=id;
+  const a=orgSpec.actors[id], r=orgSpec.roles[a?.role];
+  if(r?.allowed_action_types) {
+    intent.action_type=r.allowed_action_types[0];
+    document.getElementById('f-action').value=intent.action_type;
+    intent.params=intent.action_type==='PLACE_ORDER'?{venue:'SIM_EXCHANGE',market:'ETH-USD',side:'BUY',type:'MARKET',notional_usd:8000}:{tool:'search',cost_units:5,payload_hash:'0xabc123'};
+  }
+  renderActors(); renderPolicy(); renderSandbox(); renderActorSelect(); renderParams(); updateJson();
+}
+
+function loadScenario(id) {
+  const t=TEMPLATES.find(x=>x.id===id); if(!t)return;
+  if(t.org) Object.assign(orgSpec,t.org);
+  intent=JSON.parse(JSON.stringify(t.intent));
+  renderOrgState(); renderActors(); renderPolicy(); renderSandbox(); renderActorSelect();
+  document.getElementById('f-action').value=intent.action_type;
+  renderParams(); updateJson();
+  document.querySelectorAll('.scenario-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.scenario-btn[data-id="${id}"]`)?.classList.add('active');
+}
+
+document.getElementById('f-actor').addEventListener('change',e=>pickActor(e.target.value));
+document.getElementById('f-action').addEventListener('change',e=>{
+  intent.action_type=e.target.value;
+  intent.params=e.target.value==='PLACE_ORDER'?{venue:'SIM_EXCHANGE',market:'ETH-USD',side:'BUY',type:'MARKET',notional_usd:8000}:{tool:'search',cost_units:5,payload_hash:'0xabc123'};
+  renderParams(); updateJson();
+});
+
+function adjustLimit(key,val) {
+  const a=orgSpec.actors[intent.actor_id]; if(!a)return;
+  orgSpec.roles[a.role][key]=Number(val);
+  const ro=document.getElementById('ro-'+key); if(ro) ro.value='$'+Number(val).toLocaleString();
+  renderPolicy();
+}
+function adjustLimitText(key,raw) {
+  const n=parseInt(raw.replace(/[^0-9]/g,'')); if(isNaN(n))return;
+  const a=orgSpec.actors[intent.actor_id]; if(!a)return;
+  orgSpec.roles[a.role][key]=n;
+  renderPolicy(); renderSandbox();
+}
+function setOrgState(st) { orgSpec.org_state=st; renderOrgState(); }
+function togglePanel(id) {
+  const panel = document.getElementById(id);
+  panel.classList.toggle('minimized');
+  const btn = panel.querySelector('.minimize-btn');
+  if (panel.classList.contains('minimized')) {
+    btn.innerHTML = '+';
+    btn.title = 'Restore';
+  } else {
+    btn.innerHTML = '&ndash;';
+    btn.title = 'Minimize';
+  }
+}
+function toggleJson() {
+  const d=document.getElementById('json-drawer'), b=document.getElementById('json-btn');
+  d.classList.toggle('open'); b.classList.toggle('open'); updateJson();
+}
+function toggleComposer() {
+  const c = document.getElementById('composer');
+  c.classList.toggle('minimized');
+  const btn = document.getElementById('composer-min-btn');
+  btn.innerHTML = c.classList.contains('minimized') ? '+' : '&ndash;';
+  btn.title = c.classList.contains('minimized') ? 'Restore' : 'Minimize';
+}
+
+let composerWasMinimized = false;
+
+function setView(v) {
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-v="${v}"]`).classList.add('active');
+  document.body.classList.toggle('explain-mode',v==='briefing');
+
+  const c = document.getElementById('composer');
+  const btn = document.getElementById('composer-min-btn');
+  if (v === 'briefing') {
+    composerWasMinimized = c.classList.contains('minimized');
+    if (!composerWasMinimized) {
+      c.classList.add('minimized');
+      btn.innerHTML = '+';
+      btn.title = 'Restore';
+    }
+  } else {
+    if (!composerWasMinimized) {
+      c.classList.remove('minimized');
+      btn.innerHTML = '&ndash;';
+      btn.title = 'Minimize';
+    }
+  }
+}
+function setTheme(t,el) {
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  localStorage.setItem('orgforge-theme',t);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ANIMATED EVALUATION
+// ══════════════════════════════════════════════════════════════════
+async function runEval() {
+  if(running)return; running=true;
+  const btn=document.getElementById('eval-btn');
+  btn.disabled=true; btn.textContent='Checking...'; btn.classList.add('running');
+
+  renderStages();
+  document.getElementById('quorum-box').classList.remove('visible');
+  document.getElementById('result-banner').classList.remove('visible','auth','rej');
+  document.getElementById('result-banner').style.display='none';
+  document.getElementById('adapter-box').classList.remove('visible');
+  document.getElementById('proof-box').classList.remove('visible');
+  document.getElementById('enf-box').classList.remove('visible');
+  document.getElementById('briefing-panel').classList.remove('has-content');
+  document.getElementById('briefing-hint').classList.remove('visible');
+  document.getElementById('pipe-stat').textContent='Evaluating...';
+
+  const results=evaluate(intent,orgSpec);
+  const pass=results.every(r=>r.st==='pass');
+
+  for(let i=0;i<results.length;i++) {
+    const r=results[i], sEl=document.getElementById('s-'+r.stage), dEl=document.getElementById('d-'+r.stage), eEl=document.getElementById('e-'+r.stage);
+    const cEl=document.getElementById('c-'+(STAGES.findIndex(s=>s.id===r.stage)));
+    sEl.className='stage checking';
+    await sleep(380);
+    sEl.className='stage '+r.st;
+    dEl.textContent=r.d; eEl.textContent=r.e;
+    if(cEl) cEl.className='connector '+r.st;
+    if(r.st==='fail') {
+      for(let j=i+1;j<STAGES.length;j++) {
+        document.getElementById('s-'+STAGES[j].id).className='stage dimmed';
+        document.getElementById('d-'+STAGES[j].id).textContent='Not evaluated';
+      }
+      break;
+    }
+    await sleep(120);
+  }
+
+  // Quorum (success only)
+  if(pass) {
+    await sleep(300);
+    const qBox=document.getElementById('quorum-box'); qBox.classList.add('visible');
+    const ih=await sha256(canon({org_id:orgSpec.org_id,actor_id:intent.actor_id,action_type:intent.action_type,params:intent.params}));
+    const sigs=[];
+    for(const v of ['node-A','node-B','node-C']) sigs.push(await sha256(v+ih+Date.now()));
+    document.getElementById('q-nodes').innerHTML=['node-A','node-B','node-C'].map((v,i)=>
+      `<div class="qnode" id="qn-${i}"><div class="qnode-id">validator:${v}</div><div class="qnode-status" id="qs-${i}">Pending</div><div class="qnode-sig" id="qsg-${i}"></div></div>`).join('');
+    const qv=document.getElementById('q-verdict'); qv.textContent='Awaiting validators...'; qv.className='quorum-verdict';
+
+    for(let i=0;i<3;i++) {
+      await sleep(300);
+      document.getElementById('qn-'+i).className='qnode signed';
+      document.getElementById('qs-'+i).textContent='Approved';
+      document.getElementById('qsg-'+i).textContent=sigs[i].slice(0,18)+'...';
+      if(i===1) { qv.textContent='2-of-3 quorum reached -- assembling proof'; qv.className='quorum-verdict reached'; }
+    }
+    await sleep(200);
+
+    // Proof
+    const pb=document.getElementById('proof-box'); pb.classList.add('visible');
+    document.getElementById('proof-body').innerHTML=`
+      <div class="proof-row"><span class="proof-k">Intent Hash</span><span class="proof-v hi">${ih.slice(0,22)}...</span></div>
+      <div class="proof-row"><span class="proof-k">Org</span><span class="proof-v">${orgSpec.org_id}</span></div>
+      <div class="proof-row"><span class="proof-k">OrgSpec</span><span class="proof-v">${orgSpec.orgspec_version}</span></div>
+      <div class="proof-row"><span class="proof-k">Quorum</span><span class="proof-v green">2-of-3</span></div>
+      <div class="proof-row"><span class="proof-k">Issued</span><span class="proof-v">${Math.floor(Date.now()/1000)}</span></div>
+      <div class="proof-row"><span class="proof-k">Expires</span><span class="proof-v">${Math.floor(Date.now()/1000)+300}</span></div>
+      <div class="proof-row"><span class="proof-k">Validator A</span><span class="proof-v">${sigs[0].slice(0,16)}...</span></div>
+      <div class="proof-row"><span class="proof-k">Validator B</span><span class="proof-v">${sigs[1].slice(0,16)}...</span></div>`;
+  }
+
+  // Result
+  await sleep(250);
+  const rb=document.getElementById('result-banner');
+  rb.style.display='flex'; rb.className='result-banner visible '+(pass?'auth':'rej');
+  document.getElementById('r-icon').textContent=pass?'\u2713':'\u2717';
+  document.getElementById('r-title').textContent=pass?'AUTHORIZED':'REJECTED';
+  const last=results[results.length-1];
+  document.getElementById('r-detail').textContent=pass?'All governance checks passed. Proof issued.':last.d;
+  document.getElementById('r-explain').textContent=pass?'This action satisfied every rule. A signed proof was issued by 2-of-3 validators.':last.e;
+
+  // Adapter
+  const ab=document.getElementById('adapter-box'); ab.classList.add('visible');
+  const ad=document.getElementById('adapter-dec');
+  ad.className='adapter-decision '+(pass?'exec':'block');
+  ad.textContent=pass?'EXECUTE -- valid proof received':'BLOCK -- no proof issued';
+
+  // Enforcement
+  const eb=document.getElementById('enf-box'); eb.classList.add('visible');
+  const actor=orgSpec.actors[intent.actor_id];
+  document.getElementById('enf-body').innerHTML=pass
+    ?`OrgForge verified <strong>${actor?.label||intent.actor_id}</strong> as an active actor. The action satisfied all policy constraints. No additional approval was required. A 2-of-3 validator quorum assembled a signed proof. The execution adapter received and verified the proof.`
+    :`OrgForge evaluated the intent from <strong>${actor?.label||intent.actor_id}</strong> and blocked execution.<br><br><strong>Reason:</strong> ${last.d}<br><br>No authorization proof was issued. The execution adapter must refuse this action.`;
+
+  // ── Build rich briefing narrative ──
+  const bp=document.getElementById('briefing-panel');
+  bp.classList.add('has-content');
+  const actorLabel=actor?.label||intent.actor_id;
+  const roleName=actor?.role||'unknown';
+  const role=actor?orgSpec.roles[actor.role]:null;
+
+  let briefingHtml='';
+
+  // Section 1: The Agent's Mission
+  briefingHtml+=`<div class="briefing-section">
+    <div class="briefing-section-title">The Actor</div>
+    <div class="briefing-text">`;
+  if(intent.action_type==='PLACE_ORDER') {
+    briefingHtml+=`<strong>${actorLabel}</strong> is an autonomous trading agent operating under the <span class="highlight">${roleName}</span> role within the <span class="highlight">${orgSpec.org_id}</span> organization. Its job is to execute trades on behalf of the organization according to programmed strategy. It does not have direct access to the exchange. Every trade it wants to make must pass through OrgForge first.`;
+    briefingHtml+=`<br><br>Right now, it wants to <strong>${(intent.params.side||'BUY').toLowerCase()} $${(intent.params.notional_usd||0).toLocaleString()} worth of ${intent.params.market||'ETH-USD'}</strong> on the simulated exchange.`;
+  } else if(intent.action_type==='TOOL_CALL') {
+    briefingHtml+=`<strong>${actorLabel}</strong> is an AI agent operating under the <span class="highlight">${roleName}</span> role within the <span class="highlight">${orgSpec.org_id}</span> organization. It assists humans by searching documents, summarizing content, drafting text, and executing code. Each tool it uses must be authorized by OrgForge before the system will execute the call.`;
+    briefingHtml+=`<br><br>Right now, it wants to invoke the <strong>${intent.params.tool||'unknown'}</strong> tool.`;
+  }
+  briefingHtml+=`</div></div>`;
+
+  // Section 2: What OrgForge Checks (step by step)
+  briefingHtml+=`<div class="briefing-section">
+    <div class="briefing-section-title">The Evaluation (step by step)</div>`;
+  const stageNarrative = {
+    structure: {
+      pass: `The agent submits a structured intent containing its identity, the action it wants to perform, and all required parameters. OrgForge validates that the request is well-formed before proceeding. <strong>This intent is complete.</strong>`,
+      fail: `The agent submitted an intent that is missing required fields. OrgForge cannot evaluate an incomplete request. <strong class="fail-text">Evaluation stops here.</strong>`
+    },
+    actor: {
+      pass: `OrgForge looks up <strong>${actorLabel}</strong> in the organization's actor registry. The actor is registered, currently active, and assigned the <strong>${roleName}</strong> role. This role defines what the agent is permitted to do. <strong class="pass-text">Identity confirmed.</strong>`,
+      fail_suspended: `OrgForge looks up the actor in the organization's registry and finds that <strong>${actorLabel}</strong> has been <strong class="fail-text">suspended</strong>. A suspended actor cannot perform any actions regardless of role permissions. This could be due to a security incident, policy violation, or administrative decision. <strong class="fail-text">Evaluation stops here.</strong>`,
+      fail_unknown: `OrgForge cannot find this actor in the organization's registry. Unregistered actors are not permitted to perform any actions. <strong class="fail-text">Evaluation stops here.</strong>`
+    },
+    freshness: {
+      pass: `OrgForge checks that this intent is current (not expired) and has not been submitted before (replay protection). It also checks the organization's operational state. The organization is in <strong>NORMAL</strong> mode, and the intent expires in 300 seconds. <strong class="pass-text">Request is fresh.</strong>`,
+      fail_freeze: `OrgForge checks the organization's operational state and finds it is in <strong class="fail-text">FREEZE</strong> mode. During a freeze, no actions can proceed regardless of who submits them or what they request. This is an emergency control that the organization activates during incidents, breaches, or audits. <strong class="fail-text">All actions blocked.</strong>`,
+      fail_audit: `OrgForge checks the organization's operational state and finds it is in <strong class="fail-text">AUDIT</strong> mode. During an audit, all actions require manual review before they can proceed. <strong class="fail-text">Action held for review.</strong>`
+    },
+    policy: {
+      pass_order: `OrgForge checks this trade against the ${roleName} role's policy constraints. The market (${intent.params.market||'ETH-USD'}) is in the allowed list. The order amount ($${(intent.params.notional_usd||0).toLocaleString()}) is within the per-order limit of $${role?.max_order_notional_usd?.toLocaleString()||'N/A'}. <strong class="pass-text">Trade satisfies all policy limits.</strong>`,
+      fail_order_limit: `OrgForge checks this trade against the ${roleName} role's policy constraints. The order amount ($${(intent.params.notional_usd||0).toLocaleString()}) <strong class="fail-text">exceeds the per-order limit</strong> of $${role?.max_order_notional_usd?.toLocaleString()||'N/A'}. The organization set this limit to prevent any single agent from placing oversized trades. <strong class="fail-text">Evaluation stops here. No proof will be issued.</strong>`,
+      fail_order_market: `OrgForge checks this trade against the ${roleName} role's allowed markets. The requested market is not on the approved list. Allowed markets: ${role?.allowed_markets?.join(', ')||'none'}. <strong class="fail-text">Evaluation stops here.</strong>`,
+      pass_tool: `OrgForge checks whether the <strong>${intent.params.tool||''}</strong> tool is in the approved list for the ${roleName} role. Approved tools: ${role?.allowed_tools?.join(', ')||'none'}. <strong class="pass-text">Tool access is permitted.</strong>`,
+      fail_tool: `OrgForge checks whether the <strong>${intent.params.tool||''}</strong> tool is in the approved list for the ${roleName} role. It is <strong class="fail-text">not permitted</strong>. Approved tools: ${role?.allowed_tools?.join(', ')||'none'}. The organization restricts tool access to prevent agents from performing actions outside their intended scope. <strong class="fail-text">Evaluation stops here.</strong>`,
+      fail_action: `OrgForge checks whether the ${roleName} role is permitted to perform <strong>${intent.action_type}</strong> actions. It is not. Allowed actions: ${role?.allowed_action_types?.join(', ')||'none'}. <strong class="fail-text">Evaluation stops here.</strong>`
+    },
+    approval: {
+      pass: `OrgForge checks whether this action requires additional human approval. Based on the amount and action type, no human sign-off is needed. The agent can proceed autonomously within the policy limits the organization has set. <strong class="pass-text">No approval required.</strong>`,
+      fail_order: `OrgForge checks whether this action requires additional human approval. Orders at or above $${role?.approval_threshold_usd?.toLocaleString()||'N/A'} require a human to sign off before execution. No approval was provided with this intent. This is how organizations maintain human oversight over high-value autonomous actions. <strong class="fail-text">Blocked pending human approval.</strong>`,
+      fail_tool: `OrgForge checks whether the <strong>${intent.params.tool||''}</strong> tool requires human approval. The organization has flagged this tool as requiring sign-off because of its potential impact. No approval was attached to this intent. <strong class="fail-text">Blocked pending human approval.</strong>`
+    }
+  };
+
+  for(let i=0;i<results.length;i++) {
+    const r=results[i];
+    let narrative='';
+    if(r.stage==='structure') narrative=stageNarrative.structure[r.st];
+    else if(r.stage==='actor') {
+      if(r.st==='pass') narrative=stageNarrative.actor.pass;
+      else narrative=r.d.includes('suspended')?stageNarrative.actor.fail_suspended:stageNarrative.actor.fail_unknown;
+    }
+    else if(r.stage==='freshness') {
+      if(r.st==='pass') narrative=stageNarrative.freshness.pass;
+      else narrative=r.d.includes('FREEZE')?stageNarrative.freshness.fail_freeze:stageNarrative.freshness.fail_audit;
+    }
+    else if(r.stage==='policy') {
+      if(r.st==='pass') narrative=intent.action_type==='PLACE_ORDER'?stageNarrative.policy.pass_order:stageNarrative.policy.pass_tool;
+      else {
+        if(intent.action_type==='PLACE_ORDER') narrative=r.d.includes('exceeds')?stageNarrative.policy.fail_order_limit:(r.d.includes('Market')?stageNarrative.policy.fail_order_market:stageNarrative.policy.fail_action);
+        else narrative=r.d.includes('not permitted')?stageNarrative.policy.fail_tool:stageNarrative.policy.fail_action;
+      }
+    }
+    else if(r.stage==='approval') {
+      if(r.st==='pass') narrative=stageNarrative.approval.pass;
+      else narrative=intent.action_type==='PLACE_ORDER'?stageNarrative.approval.fail_order:stageNarrative.approval.fail_tool;
+    }
+
+    briefingHtml+=`<div class="briefing-step">
+      <div class="briefing-step-num ${r.st}">${i+1}</div>
+      <div class="briefing-step-content">${narrative||r.e}</div>
+    </div>`;
+  }
+  briefingHtml+=`</div>`;
+
+  // Section 3: The Outcome
+  briefingHtml+=`<div class="briefing-section">
+    <div class="briefing-section-title">The Outcome</div>
+    <div class="briefing-text">`;
+  if(pass) {
+    briefingHtml+=`All five stages passed. OrgForge sent this intent to three independent validator nodes. Each validator independently evaluated the intent against the same OrgSpec and reached the same conclusion: <span class="pass-text">authorized</span>.`;
+    briefingHtml+=`<br><br>Two of three validators (the minimum quorum) returned signed approvals. OrgForge assembled these into a single <strong>authorization proof</strong> -- a cryptographic artifact that proves this specific action was evaluated and approved by the organization's governance system.`;
+    briefingHtml+=`<br><br>This proof is now sent to the <strong>execution adapter</strong> (in this case, the simulated exchange). The adapter verifies the proof's signatures and confirms it matches the intent. Only then does it execute the action. Without this proof, the adapter will refuse.`;
+    briefingHtml+=`<br><br><strong>This is the core mechanism.</strong> The agent never had direct access to the exchange. It could only act through OrgForge. And OrgForge only issues a proof when every rule in the organization's constitution is satisfied.`;
+  } else {
+    const failStage=results[results.length-1];
+    briefingHtml+=`The evaluation <span class="fail-text">failed at stage ${results.length}</span> (${STAGES.find(s=>s.id===failStage.stage)?.name||failStage.stage}). OrgForge short-circuited the pipeline -- stages after the failure point were not evaluated because there is no reason to proceed.`;
+    briefingHtml+=`<br><br><strong>No authorization proof was issued.</strong> Without a valid proof, the execution adapter will refuse to act. The agent's request is dead.`;
+    briefingHtml+=`<br><br>This is not a suggestion or a warning. The action <em>cannot execute</em>. The adapter is structurally incapable of proceeding without a valid, signed proof from the validator quorum. This is what separates OrgForge from policy-as-documentation: the rules are not advisory. They are enforced mechanically, at the moment of action, every time.`;
+  }
+  briefingHtml+=`</div></div>`;
+
+  document.getElementById('briefing-body').innerHTML=briefingHtml;
+
+  document.getElementById('pipe-stat').textContent=pass?'Authorized':'Rejected';
+
+  // Audit
+  auditLog.unshift({ txt:`${intent.action_type} by ${intent.actor_id}`, dec:pass?'AUTHORIZED':'REJECTED', time:new Date().toTimeString().slice(0,8) });
+  renderAudit();
+
+  btn.disabled=false; btn.innerHTML='Run Check <span class="eval-sub">(evaluate intent)</span>'; btn.classList.remove('running');
+  running=false;
+}
+
+function renderAudit() {
+  const b=document.getElementById('audit-body');
+  document.getElementById('audit-ct').textContent=auditLog.length+' event'+(auditLog.length===1?'':'s');
+  if(!auditLog.length){b.innerHTML='<div class="audit-empty">No evaluations yet</div>';return;}
+  b.innerHTML=auditLog.slice(0,20).map(e=>
+    `<div class="audit-entry ${e.dec==='AUTHORIZED'?'auth':'rej'}"><span class="a-dot"></span><span class="a-text">${e.txt} \u2192 ${e.dec}</span><span class="a-time">${e.time}</span></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RESIZABLE PANES
+// ══════════════════════════════════════════════════════════════════
+function initResize(handleId, leftPaneId, rightPaneId, dir) {
+  const handle=document.getElementById(handleId);
+  let dragging=false, startX, startLW, startRW;
+  handle.addEventListener('mousedown',e=>{
+    dragging=true; startX=e.clientX;
+    const lp=document.getElementById(leftPaneId), rp=document.getElementById(rightPaneId);
+    startLW=lp.offsetWidth; startRW=rp.offsetWidth;
+    handle.classList.add('active');
+    document.body.style.cursor='col-resize'; document.body.style.userSelect='none';
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    const dx=e.clientX-startX;
+    const lp=document.getElementById(leftPaneId), rp=document.getElementById(rightPaneId);
+    const lMin=parseInt(getComputedStyle(lp).minWidth)||200, lMax=parseInt(getComputedStyle(lp).maxWidth)||500;
+    const rMin=parseInt(getComputedStyle(rp).minWidth)||200;
+    let newLW=startLW+dx*(dir==='left'?1:-1);
+    newLW=Math.max(lMin,Math.min(lMax,newLW));
+    if(dir==='left') lp.style.width=newLW+'px';
+    else { let newRW=startRW-dx; newRW=Math.max(rMin,Math.min(500,newRW)); rp.style.width=newRW+'px'; }
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!dragging)return; dragging=false;
+    handle.classList.remove('active');
+    document.body.style.cursor=''; document.body.style.userSelect='';
+  });
+}
+initResize('resize-left','pane-left','pane-center','left');
+initResize('resize-right','pane-right','pane-center','right');
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+renderScenarios(); renderOrgState(); renderActors(); renderActorSelect(); renderPolicy(); renderSandbox(); renderParams(); renderStages(); updateJson();
+</script>
+</body>
+</html>
